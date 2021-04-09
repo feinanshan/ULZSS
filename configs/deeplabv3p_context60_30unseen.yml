@@ -1,0 +1,61 @@
+model:
+    arch: deeplabv3p
+    backbone: resnet50
+    output_stride: 16
+    syncBN: False
+data:
+    dataset: pascalcontext60
+    train_split: train
+    unseen: 30
+    transductive: 1
+    val_split: val
+    data_path: /research/pinghu/datasets/Pascal_Context/
+    emdb_path: ./embedding/context/google_context59.mat
+training:
+    n_workers: 8
+    train_iters: 20000
+    batch_size: 8
+    val_interval: 500
+    print_interval: 25
+    loss:
+        name: BCELoss
+    optimizer:
+        name: adaoptimizer
+        momentum: 0.9
+        wd: 5.0e-4
+        lr0: 5.0e-4
+        max_iter: 20000
+        power: 0.9
+        warmup_steps: 1000
+        warmup_start_lr: 1.0e-5
+    train_augmentations:
+        brightness: 0.5
+        contrast: 0.5
+        saturation: 0.5
+        scale: [513,513]
+        rscale: [0.5,2]
+        hflip: 0.5
+        rcrop: [513,513]
+        norm: 255.0
+        cnorm: [[.485, .456, .406],[.229, .224, .225]]
+    resume:
+    visdom: False
+
+validating:
+    resume:
+    n_workers: 4
+    batch_size: 4
+    val_augmentations:
+        scale: [513,513]
+        norm: 255.0
+        cnorm: [[.485, .456, .406],[.229, .224, .225]]
+
+testing:
+    densecrf: False
+    resume: ./checkpoint/pspnet_cityscapes_best_model.pkl
+    outpath: ./output
+    n_workers: 4
+    batch_size: 1
+    test_augmentations:
+        norm: 255.0
+        cnorm: [[.485, .456, .406],[.229, .224, .225]]
